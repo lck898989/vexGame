@@ -23,11 +23,19 @@ export default class SkillManager extends cc.Component {
     /** 当前的技能节点 */
     public curSkillNode: cc.Node = null;
 
+    /*** 目标技能是否处于冷却中 */
+    public skillIsCool: boolean = false;
+
     /** 将所需要的技能添加到该节点下 */
-    public generateSkill(skillName: string) {   
-        if(this.skillDataMap.get(skillName)) {
-            let skillDataItem: SkillData = this.skillDataMap.get(skillName);
+    public generateSkill(skillName: string) { 
+        let skillDataItem: SkillData = this.skillDataMap.get(skillName);
+
+        if(skillDataItem && skillDataItem.coolTime === skillDataItem.coolRemain) {
+            skillDataItem = this.skillDataMap.get(skillName);
             this.curSkill = skillDataItem;
+
+            // 开始技能冷却
+            this.startSkillCountDown(skillDataItem);
 
             /** 所有者是自己 */
             if(skillDataItem.owner === this.node && skillDataItem.skillPrefab) {
@@ -48,6 +56,7 @@ export default class SkillManager extends cc.Component {
         skillData.costSP = 10;
         skillData.atRatio = 1.5;
         skillData.coolTime = 10;
+        skillData.coolRemain = 10;
         skillData.impactType = [SkillImpact[0],SkillImpact[1]];
         skillData.nextComSkillId = 0;
         skillData.durationTime = 2;
@@ -67,7 +76,23 @@ export default class SkillManager extends cc.Component {
         /** 填充技能映射表 */
         this.initSkillData();
     }
+    /** 开始技能冷却倒计时 */
+    public startSkillCountDown(skill: SkillData) {
+        skill.coolRemain = skill.coolTime;
+        // 开始减少coolRemain
+        let intervalId = setInterval(() => {
+            skill.coolRemain--;
+            if(skill.coolRemain < 1) {
+                clearInterval(intervalId);
+                // 重置剩余冷却时间 意思是可以再次释放该技能了
+                skill.coolRemain = skill.coolTime; 
+            }
+        },1000);
 
+    }
+    public startReduceCollRemain(skill: SkillData) {
+
+    }
     update (dt) {
         /** 更新技能的位置 */
         if(this.curSkillNode) {
