@@ -180,7 +180,7 @@
       "array": [
         0,
         0,
-        418.2902700278839,
+        444.27103214141704,
         0,
         0,
         0,
@@ -708,23 +708,6 @@
       "__id__": 12
     },
     "_enabled": true,
-    "skillDataList": [
-      {
-        "id": 0,
-        "name": "",
-        "attackDistance": 0,
-        "costSP": 10,
-        "atRatio": 1,
-        "coolTime": 2,
-        "nextComSkillId": 0,
-        "durationTime": 0,
-        "skillInterval": 0,
-        "skillPrefabName": "",
-        "skillAnimationName": "",
-        "skillAttackType": 0,
-        "attachShaper": 2
-      }
-    ],
     "_id": "29OsmQAihH5I9iOjD51L6n"
   },
   {

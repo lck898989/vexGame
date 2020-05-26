@@ -23,6 +23,12 @@ export enum SkillImpact {
     /** 减少攻击力 */
     DownAttack
 }
+export enum Direction {
+    LEFT,
+    UP,
+    RIGHT,
+    DOWN
+}
 const {ccclass, property} = cc._decorator;
 @ccclass
 export default class SkillData {
@@ -128,5 +134,12 @@ export default class SkillData {
         displayName: "攻击产生的形状"
     })
     public attachShaper: SkillShape = SkillShape.SECTOR;
+
+    /** 该技能是否可以移动 */
+    public isCanMove: boolean = false;
+    /** 技能的传播方向默认向右传播 */
+    public spreadDir: Direction = Direction.RIGHT;
+    /** 技能的移动速度 */
+    public skillSpeed: number = 100;
 
 }
