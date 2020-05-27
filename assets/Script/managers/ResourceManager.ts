@@ -4,13 +4,19 @@
  * @Last Modified by: mikey.zhaopeng
  * @Last Modified time: 2020-02-26 16:38:26
  */
+import {ResConfig} from "../../../assets/resconfig";
 const {ccclass, property} = cc._decorator;
-
 @ccclass
+// import {fs} from "fire-fs";
 export default class ResourceManager {
 
     // onLoad () {}
     private static _instance: ResourceManager = null;
+
+    public static resConfig = ResConfig;
+    constructor() {
+
+    }
     // 资源缓存
     private resCache: Object = {};
     public static getInstance(): ResourceManager {
@@ -24,7 +30,8 @@ export default class ResourceManager {
      * @param  {string} url resources 路径下的资源路径字符串
      * @returns Promise 返回的promise对象
      */
-    public loadResourceByUrl(url: string,type: any): Promise<any> {
+    public async loadResourceByUrl(url: string,type: any): Promise<any> {
+    
         if(!this.resCache[url]) {
             return new Promise((resolve,reject) => {
                 cc.loader.loadRes(url,type,(err,res) => {

@@ -66,7 +66,9 @@ export default class SkillManager extends cc.Component {
         skillData.durationTime = 2;
         skillData.skillInterval = 2;
         skillData.owner = this.node;
-        skillData.skillPrefab = await ResourceManager.getInstance().loadResourceByUrl("/prefab/wave_boxing.prefab",cc.Prefab);
+        if(ResourceManager.resConfig.wave_boxing_prefab.dir === 'resources') {
+            skillData.skillPrefab = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig.wave_boxing_prefab.path,cc.Prefab);
+        }
         skillData.skillPrefabName = "wave_boxing";
         skillData.skillAnimationName = "waveboxing";
 
@@ -80,7 +82,7 @@ export default class SkillManager extends cc.Component {
         /** 填充技能映射表 */
         this.initSkillData();
     }
-    /** 开始技能冷却倒计时 */
+    /** 开始技能冷却倒计时 cd */
     public startSkillCountDown(skill: SkillData) {
         skill.coolRemain = skill.coolTime;
         // 开始减少coolRemain
@@ -98,7 +100,22 @@ export default class SkillManager extends cc.Component {
     update (dt) {
         /** 更新技能的位置 */
         if(this.curSkillNode) {
-            this.curSkillNode.x += this.curSkill.skillSpeed * dt;
+            
+            switch(this.curSkill.spreadDir) {
+                case Direction.RIGHT:
+                        this.curSkillNode.scaleX = 1;
+                        this.curSkillNode.x += this.curSkill.skillSpeed * dt;
+                    break;
+                    case Direction.LEFT:
+                        this.curSkillNode.scaleX = -1;
+                        this.curSkillNode.x -= this.curSkill.skillSpeed * dt;
+                        
+                    break;
+                case Direction.UP:
+                    break;
+                case Direction.DOWN:
+                    break;             
+            }
         }
 
         /** 检测技能是否碰撞到敌人 */
