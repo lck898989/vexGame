@@ -55,7 +55,7 @@ export default class SkillManager extends cc.Component {
                     let skillReleaser: SkillReleaser = this.curSkillNode.getComponent("SkillReleaser");
                     /** 为技能释放器赋予技能数据 */
                     skillReleaser.SkillData = this.curSkill;
-                    
+
                 }
                 let skillAnim: cc.Animation = this.curSkillNode.getComponent(cc.Animation);
                 if(skillAnim) {

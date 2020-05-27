@@ -1,6 +1,7 @@
 import SkillData, { AttackType, SkillShape } from "../common/SkillData";
 import ClassFactory from "../../utils/ClassFactory";
-import SkillSelector from "../skillSelector/SkillSelector";
+import SkillSelector from "../skillSelector/ISkillSelector";
+import IImpact from "../impact/IImpact";
 
 /**
  * 
@@ -20,11 +21,17 @@ export default abstract class SkillReleaser extends cc.Component {
     /** 选取算法对象 */
     private attackSelector: SkillSelector = null;
 
+    /** 影响效果数组 */
+    private IimpactEffects: IImpact[] = [];
+
     public get SkillData() {
         return this.skillData;
     }
     public set SkillData(skill: SkillData) {
         this.skillData = skill;
+
+        /** 创建算法对象 */
+        this.initReleaser();
     }
 
     onLoad () {
@@ -44,6 +51,7 @@ export default abstract class SkillReleaser extends cc.Component {
             let impactItem = this.skillData.impactType[i];
             /** 利用发射获得影响效果的对象 */
             let impactClass = ClassFactory.getClass(`${impactItem}Impact`);
+            this.IimpactEffects.push(impactClass);
         }
     }
 
