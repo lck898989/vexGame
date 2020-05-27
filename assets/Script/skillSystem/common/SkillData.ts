@@ -21,7 +21,11 @@ export enum SkillImpact {
     /** 生命值伤害 */
     Damage,
     /** 减少攻击力 */
-    DownAttack
+    DownAttack,
+    /** 眩晕 */
+    Dizzy,
+    /** 减速 */
+    SlowDown
 }
 export enum Direction {
     LEFT,

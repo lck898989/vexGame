@@ -8,6 +8,7 @@
 
 import SkillData, { SkillImpact, Direction } from "../common/SkillData";
 import ResourceManager from "../../managers/ResourceManager";
+import SkillReleaser from "../releaser/SkillReleaser";
 
 const {ccclass, property} = cc._decorator;
 
@@ -26,6 +27,9 @@ export default class SkillManager extends cc.Component {
     /*** 目标技能是否处于冷却中 */
     public skillIsCool: boolean = false;
 
+    /** 技能对象池 */
+    public skillNodePool: cc.NodePool = null;
+
     /** 将所需要的技能添加到该节点下 */
     public generateSkill(skillName: string) { 
         let skillDataItem: SkillData = this.skillDataMap.get(skillName);
@@ -39,13 +43,28 @@ export default class SkillManager extends cc.Component {
 
             /** 所有者是自己 */
             if(skillDataItem.owner === this.node && skillDataItem.skillPrefab) {
-                this.curSkillNode = cc.instantiate(skillDataItem.skillPrefab);
+                /** 从对象池中取出一个节点 */
+                this.curSkillNode = this.skillNodePool.get();
+                if(!this.curSkillNode) {
+                    let tempNode: cc.Node = cc.instantiate(skillDataItem.skillPrefab);
+                    /** 向池子中放入对象 */
+                    this.skillNodePool.put(tempNode);
+
+                    this.curSkillNode = tempNode;
+
+                    let skillReleaser: SkillReleaser = this.curSkillNode.getComponent("SkillReleaser");
+                    /** 为技能释放器赋予技能数据 */
+                    skillReleaser.SkillData = this.curSkill;
+                    
+                }
                 let skillAnim: cc.Animation = this.curSkillNode.getComponent(cc.Animation);
                 if(skillAnim) {
                     /** 播放技能动画 */
                     skillAnim.play(this.curSkill.skillAnimationName);
                 }
-                this.node.addChild(this.curSkillNode);
+                if(this.node.children.indexOf(this.curSkillNode) < 0) {
+                    this.node.addChild(this.curSkillNode);
+                }
             }
         }
     }
@@ -79,6 +98,8 @@ export default class SkillManager extends cc.Component {
         this.skillDataMap.set(skillData.name,skillData);
     } 
     start () {
+        this.skillNodePool = new cc.NodePool();
+
         /** 填充技能映射表 */
         this.initSkillData();
     }
