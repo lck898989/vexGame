@@ -29,7 +29,7 @@ export default class SkillManager extends cc.Component {
     /** 将所需要的技能添加到该节点下 */
     public generateSkill(skillName: string) { 
         let skillDataItem: SkillData = this.skillDataMap.get(skillName);
-
+        // 准备技能，判断是否可以释放技能
         if(skillDataItem && skillDataItem.coolTime === skillDataItem.coolRemain) {
             skillDataItem = this.skillDataMap.get(skillName);
             this.curSkill = skillDataItem;
@@ -40,7 +40,11 @@ export default class SkillManager extends cc.Component {
             /** 所有者是自己 */
             if(skillDataItem.owner === this.node && skillDataItem.skillPrefab) {
                 this.curSkillNode = cc.instantiate(skillDataItem.skillPrefab);
-
+                let skillAnim: cc.Animation = this.curSkillNode.getComponent(cc.Animation);
+                if(skillAnim) {
+                    /** 播放技能动画 */
+                    skillAnim.play(this.curSkill.skillAnimationName);
+                }
                 this.node.addChild(this.curSkillNode);
             }
         }
@@ -90,9 +94,7 @@ export default class SkillManager extends cc.Component {
         },1000);
 
     }
-    public startReduceCollRemain(skill: SkillData) {
-
-    }
+    
     update (dt) {
         /** 更新技能的位置 */
         if(this.curSkillNode) {
