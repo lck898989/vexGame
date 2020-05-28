@@ -18,18 +18,18 @@ export default class DeadState extends FSMState {
         let clip: cc.AnimationClip = await ResourceManager.getInstance().loadResourceByUrl("animations/boxing/fall_down.anim",cc.AnimationClip);
         console.log("clip is ",clip);
         let clipName: string = clip.name;
-        await new Promise((resolve,reject) => {
-            let timeId = setTimeout(() => {
-                fsm.ani.play(clipName);
-                clearTimeout(timeId);
-                resolve();
-            },1000);
-        });
+        // await new Promise((resolve,reject) => {
+        //     let timeId = setTimeout(() => {
+        //         fsm.ani.play(clipName);
+        //         clearTimeout(timeId);
+        //         resolve();
+        //     },1000);
+        // });
         /** 禁用状态机 */
-        fsm.enabled = false;
+        // fsm.enabled = false;
     }
     public actionState(fsm: FSMBase) {
-
+        
     }
 
     public existState(fsm: FSMBase) {

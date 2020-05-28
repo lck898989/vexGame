@@ -12,6 +12,20 @@
       false,
       true,
       false
+    ],
+    [
+      false,
+      false,
+      false,
+      false,
+      true
+    ],
+    [
+      false,
+      false,
+      false,
+      true,
+      false
     ]
   ],
   "excluded-modules": [
@@ -22,7 +36,9 @@
   "group-list": [
     "default",
     "hero",
-    "road"
+    "road",
+    "skill",
+    "player"
   ],
   "design-resolution-width": 960,
   "design-resolution-height": 640,
@@ -46,6 +62,5 @@
     "live": {
       "enable": false
     }
-  },
-  "start-scene": "current"
+  }
 }

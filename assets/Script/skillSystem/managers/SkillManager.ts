@@ -31,15 +31,12 @@ export default class SkillManager extends cc.Component {
     public skillNodePool: cc.NodePool = null;
 
     /** 将所需要的技能添加到该节点下 */
-    public generateSkill(skillName: string) { 
+    public async generateSkill(skillName: string) { 
         let skillDataItem: SkillData = this.skillDataMap.get(skillName);
         // 准备技能，判断是否可以释放技能
         if(skillDataItem && skillDataItem.coolTime === skillDataItem.coolRemain) {
             skillDataItem = this.skillDataMap.get(skillName);
             this.curSkill = skillDataItem;
-
-            // 开始技能冷却
-            this.startSkillCountDown(skillDataItem);
 
             /** 所有者是自己 */
             if(skillDataItem.owner === this.node && skillDataItem.skillPrefab) {
@@ -53,18 +50,31 @@ export default class SkillManager extends cc.Component {
                     this.curSkillNode = tempNode;
 
                     let skillReleaser: SkillReleaser = this.curSkillNode.getComponent("SkillReleaser");
-                    /** 为技能释放器赋予技能数据 */
+                    /** 为技能释放器赋予技能数据和技能节点 */
                     skillReleaser.SkillData = this.curSkill;
+                    skillReleaser.SkillNode = this.curSkillNode;
 
                 }
                 let skillAnim: cc.Animation = this.curSkillNode.getComponent(cc.Animation);
                 if(skillAnim) {
                     /** 播放技能动画 */
                     skillAnim.play(this.curSkill.skillAnimationName);
+                } else {
+                    if(ResourceManager.resConfig[`${this.curSkill.skillAnimationName}_anim`].dir === "resources") {
+                        let animClip: cc.AnimationClip = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig[`${this.curSkill.skillAnimationName}_anim`].path,cc.AnimationClip);
+
+                        this.curSkillNode.getComponent(cc.Animation).getClips().push(animClip);
+
+                        skillAnim.play(this.curSkill.skillAnimationName);
+                    }
+
                 }
                 if(this.node.children.indexOf(this.curSkillNode) < 0) {
                     this.node.addChild(this.curSkillNode);
                 }
+
+                // 开始技能冷却
+                this.startSkillCountDown(skillDataItem);
             }
         }
     }
@@ -89,10 +99,10 @@ export default class SkillManager extends cc.Component {
             skillData.skillPrefab = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig.wave_boxing_prefab.path,cc.Prefab);
         }
         skillData.skillPrefabName = "wave_boxing";
-        skillData.skillAnimationName = "waveboxing";
+        skillData.skillAnimationName = "wave_boxing";
 
         skillData.isCanMove = true;
-        skillData.skillSpeed = 100;
+        skillData.skillSpeed = 300;
         skillData.spreadDir = Direction.RIGHT;
         
         this.skillDataMap.set(skillData.name,skillData);
@@ -102,6 +112,13 @@ export default class SkillManager extends cc.Component {
 
         /** 填充技能映射表 */
         this.initSkillData();
+
+        cc.director.on("collect_skill",this.recoverSkill,this);
+    }
+
+    private recoverSkill(param: cc.Node): void {
+        // console.log("event is ,",event, " and params is ",params);
+        this.skillNodePool.put(param);
     }
     /** 开始技能冷却倒计时 cd */
     public startSkillCountDown(skill: SkillData) {
@@ -118,30 +135,14 @@ export default class SkillManager extends cc.Component {
 
     }
     
+    onDestroy() {
+        cc.director.off("collect_skill",this.recoverSkill,this);
+    }
+    onDisable() {
+        cc.director.off("collect_skill",this.recoverSkill,this);
+    }
+
     update (dt) {
-        /** 更新技能的位置 */
-        if(this.curSkillNode) {
-            
-            switch(this.curSkill.spreadDir) {
-                case Direction.RIGHT:
-                        this.curSkillNode.scaleX = 1;
-                        this.curSkillNode.x += this.curSkill.skillSpeed * dt;
-                    break;
-                    case Direction.LEFT:
-                        this.curSkillNode.scaleX = -1;
-                        this.curSkillNode.x -= this.curSkill.skillSpeed * dt;
-                        
-                    break;
-                case Direction.UP:
-                    break;
-                case Direction.DOWN:
-                    break;             
-            }
-        }
-
-        /** 检测技能是否碰撞到敌人 */
-
-
         
     }
 }
