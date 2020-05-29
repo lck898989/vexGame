@@ -3,4 +3,7 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class DownAttackImpact extends cc.Component implements IImpact {
 
+    public impactRun(node: cc.Node) {
+        
+    }
 }

@@ -80,8 +80,13 @@ export default class SkillData {
         displayName: "技能冷却时间"
     })
     public coolTime: number = 2;
+    /** 技能伤害 */
+    // public skillDamage: number = 200;
     /** 技能冷却剩余时间 */
     public coolRemain: number;
+
+    /** 技能是否处于冷却状态 */
+    public isCool: boolean = false;
 
     /** 技能影响类型（是掉血,减少攻击力 还是其他） */
     public impactType: string[] = [SkillImpact[0],SkillImpact[1]];

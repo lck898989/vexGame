@@ -2,6 +2,7 @@ import SkillData, { AttackType, SkillShape, Direction } from "../common/SkillDat
 import ClassFactory from "../../utils/ClassFactory";
 import SkillSelector from "../skillSelector/ISkillSelector";
 import IImpact from "../impact/IImpact";
+import ResourceManager from "../../managers/ResourceManager";
 // import {Direction} from "../common/SkillData"
 
 /**
@@ -12,7 +13,6 @@ import IImpact from "../impact/IImpact";
  * 
  */
 const {ccclass, property} = cc._decorator;
-
 @ccclass
 export default abstract class SkillReleaser extends cc.Component {
 
@@ -34,8 +34,24 @@ export default abstract class SkillReleaser extends cc.Component {
     public set SkillData(skill: SkillData) {
         this.skillData = skill;
 
+        this.playskillAnim();
         /** 创建算法对象 */
         this.initReleaser();
+    }
+    private async playskillAnim() {
+        let skillAnim: cc.Animation = this.skillNode.getComponent(cc.Animation);
+        if(skillAnim) {
+            /** 播放技能动画 */
+            skillAnim.play(this.skillData.skillAnimationName);
+        } else {
+            if(ResourceManager.resConfig[`${this.skillData.skillAnimationName}_anim`].dir === "resources") {
+                let animClip: cc.AnimationClip = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig[`${this.skillData.skillAnimationName}_anim`].path,cc.AnimationClip);
+
+                this.skillNode.getComponent(cc.Animation).getClips().push(animClip);
+
+                skillAnim.play(this.skillData.skillAnimationName);
+            }
+        }
     }
     public set SkillNode(skillNode: cc.Node) {
         this.skillNode = skillNode;
@@ -49,9 +65,10 @@ export default abstract class SkillReleaser extends cc.Component {
         // console.log('on collision enter');
         if(other.node.group === 'player' && other.node !== this.skillData.owner) {
             console.log("击中对手了");
-
             // 告诉技能管理器回收技能
             cc.director.emit("collect_skill",this.skillNode);
+            /** 计算技能影响 */
+            this.dealImpacts(other.node);
         }
         
     }
@@ -62,6 +79,15 @@ export default abstract class SkillReleaser extends cc.Component {
     start () {
 
     }
+
+    /** 计算影响 */
+    dealImpacts(node: cc.Node): void {
+        /** 开始运行伤害 */
+        this.IimpactEffects.forEach((item,index) => {
+            item.impactRun(node);
+        });
+    }
+
     /** 初始化算法对象 */
     initReleaser() {
         /*** 技能选区规范命名：技能选取枚举名+ Selector 例如扇形选取 SectorSelector*/

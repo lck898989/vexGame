@@ -29,6 +29,7 @@ export default class InputController extends cc.Component {
         switch(code) {
             case cc.macro.KEY.a:
                 let skillManager: SkillManager = this.node.getComponent("SkillManager");
+                /** 释放技能 */
                 skillManager.generateSkill("波浪拳");
                 break;
         }

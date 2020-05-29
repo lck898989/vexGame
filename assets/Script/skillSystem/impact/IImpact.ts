@@ -4,6 +4,8 @@
  * 
  */
 export default interface IImpact {
-
-
+    
+    /** 传递一个伤害的对象 */
+    impactRun(node: cc.Node): void;
+        
 }

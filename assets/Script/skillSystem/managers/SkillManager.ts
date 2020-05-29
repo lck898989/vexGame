@@ -5,7 +5,6 @@
  * 
  * 
  */
-
 import SkillData, { SkillImpact, Direction } from "../common/SkillData";
 import ResourceManager from "../../managers/ResourceManager";
 import SkillReleaser from "../releaser/SkillReleaser";
@@ -34,7 +33,7 @@ export default class SkillManager extends cc.Component {
     public async generateSkill(skillName: string) { 
         let skillDataItem: SkillData = this.skillDataMap.get(skillName);
         // 准备技能，判断是否可以释放技能
-        if(skillDataItem && skillDataItem.coolTime === skillDataItem.coolRemain) {
+        if(skillDataItem && !skillDataItem.isCool) {
             skillDataItem = this.skillDataMap.get(skillName);
             this.curSkill = skillDataItem;
 
@@ -49,26 +48,15 @@ export default class SkillManager extends cc.Component {
 
                     this.curSkillNode = tempNode;
 
-                    let skillReleaser: SkillReleaser = this.curSkillNode.getComponent("SkillReleaser");
-                    /** 为技能释放器赋予技能数据和技能节点 */
-                    skillReleaser.SkillData = this.curSkill;
-                    skillReleaser.SkillNode = this.curSkillNode;
-
                 }
-                let skillAnim: cc.Animation = this.curSkillNode.getComponent(cc.Animation);
-                if(skillAnim) {
-                    /** 播放技能动画 */
-                    skillAnim.play(this.curSkill.skillAnimationName);
-                } else {
-                    if(ResourceManager.resConfig[`${this.curSkill.skillAnimationName}_anim`].dir === "resources") {
-                        let animClip: cc.AnimationClip = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig[`${this.curSkill.skillAnimationName}_anim`].path,cc.AnimationClip);
 
-                        this.curSkillNode.getComponent(cc.Animation).getClips().push(animClip);
+                let skillReleaser: SkillReleaser = this.curSkillNode.getComponent("SkillReleaser");
+                /** 为技能释放器赋予技能数据和技能节点 */
+                skillReleaser.SkillData = this.curSkill;
+                skillReleaser.SkillNode = this.curSkillNode;
 
-                        skillAnim.play(this.curSkill.skillAnimationName);
-                    }
+                /** 播放技能所属动画 */
 
-                }
                 if(this.node.children.indexOf(this.curSkillNode) < 0) {
                     this.node.addChild(this.curSkillNode);
                 }
@@ -90,6 +78,7 @@ export default class SkillManager extends cc.Component {
         skillData.atRatio = 1.5;
         skillData.coolTime = 10;
         skillData.coolRemain = 10;
+        skillData.isCool = false;
         skillData.impactType = [SkillImpact[0],SkillImpact[1]];
         skillData.nextComSkillId = 0;
         skillData.durationTime = 2;
@@ -99,7 +88,7 @@ export default class SkillManager extends cc.Component {
             skillData.skillPrefab = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig.wave_boxing_prefab.path,cc.Prefab);
         }
         skillData.skillPrefabName = "wave_boxing";
-        skillData.skillAnimationName = "wave_boxing";
+        skillData.skillAnimationName = "waveboxing";
 
         skillData.isCanMove = true;
         skillData.skillSpeed = 300;
@@ -115,13 +104,19 @@ export default class SkillManager extends cc.Component {
 
         cc.director.on("collect_skill",this.recoverSkill,this);
     }
-
+    /** 技能回收 */
     private recoverSkill(param: cc.Node): void {
         // console.log("event is ,",event, " and params is ",params);
-        this.skillNodePool.put(param);
+        if(param instanceof cc.Node) {
+            // 重置回收的节点位置
+            param.x = 0;
+            this.skillNodePool.put(param);
+
+        }
     }
     /** 开始技能冷却倒计时 cd */
     public startSkillCountDown(skill: SkillData) {
+        skill.isCool = true;
         skill.coolRemain = skill.coolTime;
         // 开始减少coolRemain
         let intervalId = setInterval(() => {
@@ -130,6 +125,7 @@ export default class SkillManager extends cc.Component {
                 clearInterval(intervalId);
                 // 重置剩余冷却时间 意思是可以再次释放该技能了
                 skill.coolRemain = skill.coolTime; 
+                skill.isCool = false;
             }
         },1000);
 

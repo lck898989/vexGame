@@ -16,10 +16,11 @@ export class IdleState extends FSMState {
     }
 
     public enterState(fsm: FSMBase) {
+        
         super.enterState(fsm);
-
         let firstClipName = fsm.ani.getClips()[0].name;
         fsm.ani.play(firstClipName);
+
     }
     public actionState(fsm: FSMBase) {
 

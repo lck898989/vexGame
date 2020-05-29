@@ -21,6 +21,19 @@ export default class Player extends cc.Component {
     /** 基础攻击力 300 即平a造成的伤害 */
     public baseAttack: number = 300;
 
+    /** 法力值 */
+    public sp: number = 1000;
+
+    /** 英雄当前的动作动画 */
+    private currentAction: cc.AnimationClip = null;
+    
+    /** 设置英雄当前动画 */
+    public get CurAction() {
+        return this.currentAction;
+    }
+    public set CurAction(action: cc.AnimationClip) {
+        this.currentAction = action;
+    }
    
     /** 英雄是否死亡 */
     private isDead: boolean = false;
