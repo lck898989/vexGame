@@ -84,7 +84,7 @@ export default abstract class SkillReleaser extends cc.Component {
     dealImpacts(node: cc.Node): void {
         /** 开始运行伤害 */
         this.IimpactEffects.forEach((item,index) => {
-            item.impactRun(node);
+            item.impactRun(node,this.skillData);
         });
     }
 
