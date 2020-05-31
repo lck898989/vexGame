@@ -2,6 +2,8 @@ import FSMState from "../FSMState";
 import { FSMStateId } from "../common/FSMStateId";
 import FSMBase from "../FSMBase";
 import FSMTrigger from "../FSMTrigger";
+import Player from "../Player";
+import { ResConfig } from "../../../resconfig";
 
 const {ccclass, property} = cc._decorator;
 @ccclass
@@ -18,8 +20,8 @@ export class IdleState extends FSMState {
     public enterState(fsm: FSMBase) {
         
         super.enterState(fsm);
-        let firstClipName = fsm.ani.getClips()[0].name;
-        fsm.ani.play(firstClipName);
+        
+        fsm.node.getComponent(Player).playAnimation(ResConfig.wait_anim.name);
 
     }
     public actionState(fsm: FSMBase) {

@@ -1,3 +1,6 @@
+import { ResConfig } from "../../resconfig";
+import ResourceManager from "../managers/ResourceManager";
+import AnimationManager from "../managers/AnimationManager";
 
 const {ccclass, property} = cc._decorator;
 
@@ -26,6 +29,8 @@ export default class Player extends cc.Component {
 
     /** 英雄当前的动作动画 */
     private currentAction: cc.AnimationClip = null;
+
+    private animation: cc.Animation = null;
     
     /** 设置英雄当前动画 */
     public get CurAction() {
@@ -34,18 +39,43 @@ export default class Player extends cc.Component {
     public set CurAction(action: cc.AnimationClip) {
         this.currentAction = action;
     }
-   
+    /** 由具体状态类进行调用 */
+    public addAnimation(animation: cc.AnimationClip) {
+        /** 为该节点添加动画 */
+        AnimationManager.addAnimationByNode(this.node,animation);
+    }
+    // private addAnimation()
+    /** 播放动画 */
+    public playAnimation(name: string): cc.AnimationState{
+        // let animState: cc.AnimationState = null;
+        return this.node.getComponent(cc.Animation).play(name);
+    }
     /** 英雄是否死亡 */
-    private isDead: boolean = false;
+    public isDead: boolean = false;
 
-    onLoad () {
-
+    async onLoad () {
+        
     }
 
     start () {
+        this.animation = this.node.getComponent(cc.Animation);
 
+        this.animation.on("finished",this.animationFinish,this);
+    }
+    private animationFinish(): void {
+        console.log("动画播放完毕");
+        cc.director.emit("animation_finish");
+        if(!this.isDead) {
+            let id = setTimeout(() => {
+                this.playAnimation("wait");
+                clearTimeout(id);
+            },200);
+        }
     }
 
+    onDestroy() {
+        this.animation.off("finished",this.animationFinish,this);
+    }
     update (dt) {
 
     }

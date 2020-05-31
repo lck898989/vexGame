@@ -12,8 +12,7 @@ const {ccclass, property} = cc._decorator;
 @ccclass
 export default class DamageImpact extends cc.Component implements IImpact{
     public impactRun(node: cc.Node,skillData: SkillData): void {
-        Player
-        // 计算伤害 伤害比率 * 基础伤害
+        
         /** 释放技能的英雄组件 */
         let playerCom: Player = <Player>skillData.owner.getComponent("Player");
 

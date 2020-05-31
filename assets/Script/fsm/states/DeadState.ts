@@ -2,6 +2,8 @@ import FSMState from "../FSMState"
 import { FSMStateId } from "../common/FSMStateId";
 import FSMBase from "../FSMBase";
 import ResourceManager from "../../managers/ResourceManager";
+import { ResConfig } from "../../../resconfig";
+import Player from "../Player";
 
 export default class DeadState extends FSMState {
 
@@ -15,12 +17,14 @@ export default class DeadState extends FSMState {
 
     /** 进入状态播放动画 */
     public async enterState(fsm: FSMBase) {
-        let clip: cc.AnimationClip = await ResourceManager.getInstance().loadResourceByUrl("animations/boxing/fall_down.anim",cc.AnimationClip);
-        console.log("clip is ",clip);
-        let clipName: string = clip.name;
+        fsm.node.getComponent(Player).playAnimation(ResConfig.fall_down_anim.name);
+        fsm.getComponent(Player).isDead = true;
+        
+        /** 禁用状态机 */
+        fsm.enabled = false;
     }
     public actionState(fsm: FSMBase) {
-
+        
     }
 
     public existState(fsm: FSMBase) {

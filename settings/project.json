@@ -18,6 +18,7 @@
       false,
       false,
       false,
+      true,
       true
     ],
     [
@@ -25,6 +26,14 @@
       false,
       false,
       true,
+      false
+    ],
+    [
+      false,
+      false,
+      false,
+      true,
+      false,
       false
     ]
   ],
@@ -38,7 +47,8 @@
     "hero",
     "road",
     "skill",
-    "player"
+    "player",
+    "wall"
   ],
   "design-resolution-width": 960,
   "design-resolution-height": 640,
@@ -62,5 +72,6 @@
     "live": {
       "enable": false
     }
-  }
+  },
+  "start-scene": "current"
 }

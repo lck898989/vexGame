@@ -8,6 +8,7 @@
 import SkillData, { SkillImpact, Direction } from "../common/SkillData";
 import ResourceManager from "../../managers/ResourceManager";
 import SkillReleaser from "../releaser/SkillReleaser";
+import Player from "../../fsm/Player";
 
 const {ccclass, property} = cc._decorator;
 
@@ -52,13 +53,15 @@ export default class SkillManager extends cc.Component {
 
                 let skillReleaser: SkillReleaser = this.curSkillNode.getComponent("SkillReleaser");
                 /** 为技能释放器赋予技能数据和技能节点 */
-                skillReleaser.SkillData = this.curSkill;
                 skillReleaser.SkillNode = this.curSkillNode;
+                skillReleaser.SkillData = this.curSkill;
 
                 /** 播放技能所属动画 */
+                // this.node.getComponent(Player).playAnimation();
 
                 if(this.node.children.indexOf(this.curSkillNode) < 0) {
                     this.node.addChild(this.curSkillNode);
+                    this.curSkillNode.setPosition(cc.v2(30,30));
                 }
 
                 // 开始技能冷却
@@ -76,8 +79,8 @@ export default class SkillManager extends cc.Component {
         skillData.attackDistance = 500;
         skillData.costSP = 10;
         skillData.atRatio = 1.5;
-        skillData.coolTime = 10;
-        skillData.coolRemain = 10;
+        skillData.coolTime = 4;
+        skillData.coolRemain = 4;
         skillData.isCool = false;
         skillData.impactType = [SkillImpact[0],SkillImpact[1]];
         skillData.nextComSkillId = 0;
@@ -88,7 +91,7 @@ export default class SkillManager extends cc.Component {
             skillData.skillPrefab = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig.wave_boxing_prefab.path,cc.Prefab);
         }
         skillData.skillPrefabName = "wave_boxing";
-        skillData.skillAnimationName = "waveboxing";
+        skillData.skillAnimationName = "wave_boxing";
 
         skillData.isCanMove = true;
         skillData.skillSpeed = 300;

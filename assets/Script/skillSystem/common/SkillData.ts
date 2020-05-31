@@ -88,6 +88,9 @@ export default class SkillData {
     /** 技能是否处于冷却状态 */
     public isCool: boolean = false;
 
+    /** 技能延迟时间单位秒 */
+    public skillDelay: number = 0.5;
+
     /** 技能影响类型（是掉血,减少攻击力 还是其他） */
     public impactType: string[] = [SkillImpact[0],SkillImpact[1]];
     /** 连击的下一个技能编号 */

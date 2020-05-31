@@ -17,7 +17,7 @@ export default class NoHealthTrigger extends FSMTrigger {
         let fsmNode = fsm.node;
         let playCom: Player = fsmNode.getComponent("Player");
 
-        if(playCom.hp === 0) {
+        if(playCom.hp <= 0) {
             return true;
         } else {
             return false;

@@ -3,6 +3,8 @@ import ClassFactory from "../../utils/ClassFactory";
 import SkillSelector from "../skillSelector/ISkillSelector";
 import IImpact from "../impact/IImpact";
 import ResourceManager from "../../managers/ResourceManager";
+import Player from "../../fsm/Player";
+import AnimationManager from "../../managers/AnimationManager";
 // import {Direction} from "../common/SkillData"
 
 /**
@@ -32,25 +34,29 @@ export default abstract class SkillReleaser extends cc.Component {
         return this.skillData;
     }
     public set SkillData(skill: SkillData) {
+
         this.skillData = skill;
 
-        this.playskillAnim();
+        /** 玩家播放动画 */
+    
+        this.skillData.owner.getComponent(Player).playAnimation(this.skillData.skillAnimationName);
         /** 创建算法对象 */
         this.initReleaser();
     }
     private async playskillAnim() {
+        let delay  = this.skillData.skillDelay;
+        if(this.skillData.skillDelay > 0) {
+            await new Promise((resolve,reject) => {
+                setTimeout(() => {
+                    resolve();
+                },delay * 1000);
+            })
+        }
         let skillAnim: cc.Animation = this.skillNode.getComponent(cc.Animation);
         if(skillAnim) {
             /** 播放技能动画 */
-            skillAnim.play(this.skillData.skillAnimationName);
-        } else {
-            if(ResourceManager.resConfig[`${this.skillData.skillAnimationName}_anim`].dir === "resources") {
-                let animClip: cc.AnimationClip = await ResourceManager.getInstance().loadResourceByUrl(ResourceManager.resConfig[`${this.skillData.skillAnimationName}_anim`].path,cc.AnimationClip);
+            skillAnim.play(this.skillData.skillAnimationName + "_skill",0);
 
-                this.skillNode.getComponent(cc.Animation).getClips().push(animClip);
-
-                skillAnim.play(this.skillData.skillAnimationName);
-            }
         }
     }
     public set SkillNode(skillNode: cc.Node) {
@@ -63,12 +69,15 @@ export default abstract class SkillReleaser extends cc.Component {
      */
     onCollisionEnter(other: cc.Collider, self: cc.Collider) {
         // console.log('on collision enter');
-        if(other.node.group === 'player' && other.node !== this.skillData.owner) {
+        if(other.node.group === 'player' && other.node !== this.skillData.owner && !other.node.getComponent(Player).isDead) {
             console.log("击中对手了");
-            // 告诉技能管理器回收技能
-            cc.director.emit("collect_skill",this.skillNode);
             /** 计算技能影响 */
             this.dealImpacts(other.node);
+            // 告诉技能管理器回收技能
+            cc.director.emit("collect_skill",this.skillNode);
+        } else if(other.node.group === "wall") {
+            /** 回收节点到节点池 */
+            cc.director.emit("collect_skill",this.skillNode);
         }
         
     }
@@ -77,10 +86,20 @@ export default abstract class SkillReleaser extends cc.Component {
     }
 
     start () {
-
+        cc.director.on("animation_finish",this.playskillAnim,this);
     }
-
-    /** 计算影响 */
+    onDestroy() {
+        cc.director.off("animation_finish",this.playskillAnim,this);
+    }
+    onDisable() {
+        cc.director.off("animation_finish",this.playskillAnim,this);
+    }
+    /**
+     * 计算影响
+     * 
+     * @param  {cc.Node} node 目标对象
+     * @returns void
+     */
     dealImpacts(node: cc.Node): void {
         /** 开始运行伤害 */
         this.IimpactEffects.forEach((item,index) => {
@@ -103,9 +122,8 @@ export default abstract class SkillReleaser extends cc.Component {
     }
 
     update (dt) {
-        if(this.skillNode) {
+        if(this.skillNode && this.skillData.isCanMove) {
             switch(this.skillData.spreadDir) {
-                
                 case Direction.RIGHT:
                         this.skillNode.scaleX = 1;
                         this.skillNode.x += this.skillData.skillSpeed * dt;

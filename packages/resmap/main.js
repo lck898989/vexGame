@@ -25,6 +25,10 @@ module.exports = {
     'clicked' () {
       Editor.log('Button clicked!');
     },
+    /** 打开自动绑定动画界面 */
+    'openAni' () {
+      Editor.Panel.open('resmap:addAni');
+    },
     async 'query_assets' (event,params) {
       
       let dir = params.dirs;
@@ -52,19 +56,25 @@ module.exports = {
           for(let j = 0; j < ext.length; j++) {
 
             await new Promise((resolve,reject) => {
-              Editor.assetdb.queryAssets(`db://assets/${dir[i]}\/**\/*.${ext[j]}`,type,(err,results) => {
+              let selectstring = `db://assets/${dir[i]}\/**\/*.${ext[j]}`;
+              // Editor.log("selectstring is ",selectstring);
+              // Editor.log("type is ",type);
+              Editor.assetdb.queryAssets(selectstring,type,(err,results) => {
                 if(err) {
                   reject();
                   return;
                 }
                 if(results) {
+                  Editor.log("results is ",results);
                   // let jsonObj = {};
                   results.forEach((element,index) => {
-                    let fileName = path.basename(element.url,`.${ext[j]}`) + `_${ext[j]}`;
+                    let name = path.basename(element.url,`.${ext[j]}`);
+                    let fileName = name + `_${ext[j]}`;
                     let pathObj = {};
                     let filePath = element.url.replace(`db://assets/${dir[i]}/`,"");
                     pathObj.path = filePath;
                     pathObj.dir = dir[i];
+                    pathObj.name = name;
                     resConfig[fileName] = pathObj;
                     // resConfig.dir = dir[i];
                   });
@@ -96,6 +106,49 @@ module.exports = {
           Editor.log("资源刷新完成");
         })
       }
+    },
+    /** 查看某一个文件夹下的动画文件 */
+    async 'query_animDir' (event,params) {
+      let dir = params.dir;
+      let uuids = [];
+      let res = await new Promise((resolve,reject) => {
+        Editor.assetdb.queryAssets(`db://assets/${dir}\/*.anim`,"",(err,results) => {
+          
+          if(err) {
+            reject();
+            return;
+          }
+          if(results) {
+            // let jsonObj = {};
+            // Editor.log();
+            results.forEach((element,index) => {
+            
+              uuids.push(element.uuid);
+            });
+            resolve(uuids);
+          }
+        });
+      });
+      Editor.log("uuids is ",uuids);
+      event.reply(uuids);
+    },
+    getUrlByuuid(event,params) {
+      let uuid = params.uuid;
+      Editor.log("uuid is ",uuid);
+      let isExist = Editor.assetdb.existsByUuid(uuid);
+      Editor.log("该资源id是否存在：",isExist);
+      if(isExist) {
+        let url = Editor.assetdb.uuidToUrl(uuid);
+  
+  
+        Editor.log("url is ",url);
+        if(url) {
+          event.reply(url);
+        }
+      } else {
+        event.reply('');
+      }
     }
+
   },
 };
