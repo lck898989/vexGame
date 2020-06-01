@@ -7,11 +7,13 @@
  */
 
 import SkillManager from "../../skillSystem/managers/SkillManager";
+import SkillSystem from "../../skillSystem/common/SkillSystem";
 
 const {ccclass, property} = cc._decorator;
 
 @ccclass
 export default class InputController extends cc.Component {
+    private skillSystem: SkillSystem = null;
 
     onLoad () {
         // 开启物理系统
@@ -21,6 +23,7 @@ export default class InputController extends cc.Component {
 
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN,this.keyDown,this);
         cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP,this.keyUp,this);
+        this.skillSystem = this.node.getComponent(SkillSystem);
 
     }
     private keyDown(event: cc.Event.EventKeyboard): void {
@@ -28,9 +31,9 @@ export default class InputController extends cc.Component {
 
         switch(code) {
             case cc.macro.KEY.a:
-                let skillManager: SkillManager = this.node.getComponent("SkillManager");
-                /** 释放技能 */
-                skillManager.generateSkill("波浪拳");
+                if(this.skillSystem) {
+                    this.skillSystem.attackUseSkill('波浪拳');
+                }
                 break;
         }
 

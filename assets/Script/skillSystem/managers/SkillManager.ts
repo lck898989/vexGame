@@ -61,7 +61,7 @@ export default class SkillManager extends cc.Component {
 
                 if(this.node.children.indexOf(this.curSkillNode) < 0) {
                     this.node.addChild(this.curSkillNode);
-                    this.curSkillNode.setPosition(cc.v2(30,30));
+                    this.curSkillNode.setPosition(cc.v2(40,20));
                 }
 
                 // 开始技能冷却
@@ -69,7 +69,16 @@ export default class SkillManager extends cc.Component {
             }
         }
     }
-
+    /** 准备技能 */
+    public prepareSkill(): SkillData[] {
+        let res = [];
+        this.skillDataMap.forEach((value,key) => {
+            if(value.isCool) {
+                res.push(value);
+            }
+        });
+        return res;
+    }
     /** 初始化技能预制体信息 应该率先初始化这些技能缓存防止释放技能时候卡顿 */
     public async initSkillData() {
         let skillData = new SkillData();
@@ -113,9 +122,12 @@ export default class SkillManager extends cc.Component {
         if(param instanceof cc.Node) {
             // 重置回收的节点位置
             param.x = 0;
+            param.opacity = 255;
             this.skillNodePool.put(param);
 
         }
+        this.curSkill = null;
+        // console.log("");
     }
     /** 开始技能冷却倒计时 cd */
     public startSkillCountDown(skill: SkillData) {

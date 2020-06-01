@@ -10,5 +10,7 @@ export enum FSMStateId {
     /** 逃跑状态 */
     Escape,
     /** 攻击状态 */
-    Atach
+    Atach,
+    /** 躲避状态 */
+    Avoid
 }

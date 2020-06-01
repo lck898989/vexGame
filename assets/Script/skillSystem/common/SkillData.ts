@@ -88,8 +88,8 @@ export default class SkillData {
     /** 技能是否处于冷却状态 */
     public isCool: boolean = false;
 
-    /** 技能延迟时间单位秒 */
-    public skillDelay: number = 0.5;
+    /** 技能延迟时间单位秒(先播放英雄动画在播放技能动画) */
+    public skillDelay: number = 1;
 
     /** 技能影响类型（是掉血,减少攻击力 还是其他） */
     public impactType: string[] = [SkillImpact[0],SkillImpact[1]];

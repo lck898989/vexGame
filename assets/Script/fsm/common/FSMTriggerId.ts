@@ -6,5 +6,7 @@ export enum FSMTriggerId {
     /** 在攻击范围内 */
     RangeAttack,
     /** 血量小于10 */
-    HpLetterTen
+    HpLetterTen,
+    /** 躲避 */
+    Avoid
 }

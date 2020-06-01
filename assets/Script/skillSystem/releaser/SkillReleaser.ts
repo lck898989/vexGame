@@ -5,6 +5,7 @@ import IImpact from "../impact/IImpact";
 import ResourceManager from "../../managers/ResourceManager";
 import Player from "../../fsm/Player";
 import AnimationManager from "../../managers/AnimationManager";
+import EventManager from "../../managers/EventManager";
 // import {Direction} from "../common/SkillData"
 
 /**
@@ -30,6 +31,9 @@ export default abstract class SkillReleaser extends cc.Component {
     /** 影响效果数组 */
     private IimpactEffects: IImpact[] = [];
 
+    /** 释放器是否可以释放技能了 */
+    private canRelease: boolean = false;
+
     public get SkillData() {
         return this.skillData;
     }
@@ -37,13 +41,12 @@ export default abstract class SkillReleaser extends cc.Component {
 
         this.skillData = skill;
 
-        /** 玩家播放动画 */
-    
-        this.skillData.owner.getComponent(Player).playAnimation(this.skillData.skillAnimationName);
         /** 创建算法对象 */
         this.initReleaser();
     }
     private async playskillAnim() {
+        console.log("动画播放完毕可以播放技能动画");
+        this.canRelease = true;
         let delay  = this.skillData.skillDelay;
         if(this.skillData.skillDelay > 0) {
             await new Promise((resolve,reject) => {
@@ -62,6 +65,9 @@ export default abstract class SkillReleaser extends cc.Component {
     public set SkillNode(skillNode: cc.Node) {
         this.skillNode = skillNode;
     }
+    public get SkillNode(): cc.Node {
+        return this.skillNode;
+    }
     /**
      * 当碰撞产生的时候调用
      * @param  {Collider} other 产生碰撞的另一个碰撞组件
@@ -75,24 +81,29 @@ export default abstract class SkillReleaser extends cc.Component {
             this.dealImpacts(other.node);
             // 告诉技能管理器回收技能
             cc.director.emit("collect_skill",this.skillNode);
+            /** 将当前技能数据置空 */
+            this.skillData = null;
         } else if(other.node.group === "wall") {
+            this.skillData = null;
             /** 回收节点到节点池 */
             cc.director.emit("collect_skill",this.skillNode);
         }
         
     }
     onLoad () {
+        // cc.director.on("animation_finish",this.playskillAnim,this);
 
     }
 
     start () {
-        cc.director.on("animation_finish",this.playskillAnim,this);
+        EventManager.getInstance().addEventListener("animation_finish",this.playskillAnim,this);
     }
     onDestroy() {
-        cc.director.off("animation_finish",this.playskillAnim,this);
+        EventManager.getInstance().removeEventListener("animation_finish",this.playskillAnim,this);
+        // cc.director.off("animation_finish",this.playskillAnim,this);
     }
     onDisable() {
-        cc.director.off("animation_finish",this.playskillAnim,this);
+        EventManager.getInstance().removeEventListener("animation_finish",this.playskillAnim,this);
     }
     /**
      * 计算影响
@@ -122,7 +133,7 @@ export default abstract class SkillReleaser extends cc.Component {
     }
 
     update (dt) {
-        if(this.skillNode && this.skillData.isCanMove) {
+        if(this.skillNode && this.skillData.isCanMove && this.canRelease) {
             switch(this.skillData.spreadDir) {
                 case Direction.RIGHT:
                         this.skillNode.scaleX = 1;

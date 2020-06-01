@@ -13,6 +13,7 @@ import { IdleState } from "./states/IdleState";
 import NoHealthTrigger from "./triggers/NoHealthTrigger";
 import { FSMTriggerId } from "./common/FSMTriggerId";
 import DeadState from "./states/DeadState";
+import AvoidState from "./states/AvoidState";
 
 const {ccclass, property} = cc._decorator;
 @ccclass
@@ -51,12 +52,15 @@ export default class FSMBase extends cc.Component {
 
         let idleState: IdleState = new IdleState();
         let deadState: DeadState = new DeadState();
+        let avoidState: AvoidState = new AvoidState();
 
         /** 添加条件状态映射关系 */
         idleState.addMap(FSMTriggerId.NoHealth,FSMStateId.Dead);
+        idleState.addMap(FSMTriggerId.Avoid,FSMStateId.Avoid);
 
         /*** 将现有的状态加入到状态机数组里面 */
         this.stateList.push(idleState);
+        this.stateList.push(avoidState);
         this.stateList.push(deadState);
         
     }
