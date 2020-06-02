@@ -17,9 +17,9 @@ export default abstract class FSMState {
     public id: FSMStateId = FSMStateId.Idle;
 
     /** 条件映射状态表 */
-    public triggerStateMap: Map<FSMTriggerId,FSMStateId> = new Map<FSMTriggerId,FSMStateId>();
+    private triggerStateMap: Map<FSMTriggerId,FSMStateId> = new Map<FSMTriggerId,FSMStateId>();
     /** 条件类数组 */
-    public triggers: FSMTrigger[];
+    private triggers: FSMTrigger[];
 
     constructor() {
         this.triggers = [];

@@ -5,10 +5,10 @@
   "author": "Cocos Creator",
   "main": "main.js",
   "main-menu": {
-    "资源映射/配置目录": {
+    "扩展/配置目录": {
       "message": "resmap:open"
     },
-    "资源映射/动画自动添加": {
+    "扩展/动画自动添加": {
       "message": "resmap:openAni"
     }
   },

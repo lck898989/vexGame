@@ -92,7 +92,7 @@ export default class FSMBase extends cc.Component {
 
             /** 切换状态 */
             let state = this.stateList.find((item,index) => {
-                if(item.id === stateId) {
+                if(item.stateId === stateId) {
                     return true;
                 }
             });
